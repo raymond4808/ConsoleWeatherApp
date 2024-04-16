@@ -7,7 +7,7 @@ def main():
     #pulls api key from text file for my OpenWeather account
     api_key = open("api_key.txt", "r").read()
 
-    #input and while loop ensures F or C is entered for units to pull for from API request, non case sensitive
+    #input and while loop ensures F or C is entered for units (input validation) to pull for from API request, non case sensitive
     print('What units would you like the temperature in? Enter: F (fahrenheit) or C (celsius)?')
     units = ""
     units = input("").capitalize()
@@ -23,11 +23,17 @@ def main():
     else:
         unitCodeConversion= "metric"
 
-    #input for location request
-    location = input("Location: ")
-
     #api request to pull requested information into large JSON format
-    result = requests.get(f'https://api.openweathermap.org/data/2.5/weather?q={location}&units={unitCodeConversion}&appid={api_key}')
+    while True:
+        # input for location request and input validation
+        location = input("Location: ")
+
+        result = requests.get(f'https://api.openweathermap.org/data/2.5/weather?q={location}&units={unitCodeConversion}&appid={api_key}')
+
+        if result.json()['cod']== '404':
+            print("Invalid Location")
+            continue
+        break
 
     #print (result.json()) #shows format on how to extract data from .json format
     #location details
@@ -43,7 +49,7 @@ def main():
     humidity_level = result.json()['main']['humidity']
 
     #final output format below (easily modifiable)
-    print(f'{location} located at {lon} longitude and {lat} latitude has temperatures of {temperature:.0f}{units} with a real feel temperature of {real_feel_temp:.0f}{units}')
+    print(f'{location.capitalize()} located at {lon} longitude and {lat} latitude has temperatures of {temperature:.0f}{units} with a real feel temperature of {real_feel_temp:.0f}{units}')
     print(f'Presenting with {description} and humidity at {humidity_level}%')
 
 if __name__ == '__main__':
